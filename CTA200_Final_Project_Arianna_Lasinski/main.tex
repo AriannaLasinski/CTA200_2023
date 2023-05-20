@@ -1,0 +1,217 @@
+\documentclass[twocolumn]{aastex631}
+% \usepackage[dvipsnames]{xcolor}
+\usepackage{graphicx}
+\usepackage{siunitx}
+% \usepackage{float}
+\usepackage[toc,page]{appendix}
+\usepackage{color,soul}
+\usepackage{floatrow}
+\usepackage[yyyymmdd,hhmmss]{datetime2}
+%\usepackage[showframe]{geometry}% http://ctan.org/pkg/geometry
+%\usepackage{lipsum}% http://ctan.org/pkg/lipsum
+\usepackage{graphicx}% http://ctan.org/pkg/graphicx
+\setlength{\intextsep}{16pt}
+\newcommand{\vdag}{(v)^\dagger}
+\newcommand\aastex{AAS\TeX}
+\newcommand\latex{La\TeX}
+\newcommand{\myemail}{Arianna.lasinski@mail.utoronto.ca}
+\newcommand{\e}[1]{$10^{#1}$}
+\newcommand{\sabrina}[1]{\hl{#1}}
+\newcommand{\jisheng}[1]{\hl{#1}}
+%\newcommand{\leslie}[1]{\colorbox{Yellow}{#1}}
+
+
+\newcommand{\fullplot}[5]{
+  \begin{figure*}
+      \centering
+      \includegraphics[#1]{#2.#3}
+      \caption{#4}
+      \label{fig:#5}
+  \end{figure*}
+}
+
+\shorttitle{The activity of repeating fast radio burst source 20220912A}
+\shortauthors{A. Lasinski}
+\graphicspath{{./}{Images/}}
+
+\begin{document}
+\title{The activity of repeating fast radio burst source 20220912A}
+
+\author{Arianna Lasinski}
+\affiliation{Department of Astronomy and Astrophysics, University of Toronto, Toronto, ON M5S
+3H4, Canada}
+
+
+
+\begin{abstract}
+%%Edit this once done
+Fast Radio Bursts (FRBs) are millisecond transient signals at radio frequencies that have been detected since 2007. While the physical mechanism behind their emission remains unknown, the discovery of repeating FRBs has provided valuable insights into their nature. This paper focuses on characterizing the burst activity of FRB20220912A, an intensely active repeating FRB source discovered on September 12, 2022, by the CHIME/FRB collaboration. We analyze the temporal distribution of detections, the daily burst count, and the burst rates using a homogeneous Poisson process assumption. The data is obtained from the CHIME telescope, and various plots and histograms are generated to visualize the findings. Our results provide the start for a comprehensive understanding of the burst activity of FRB$20220912$A and contribute to the broader field of FRB research. Future steps and potential areas of investigation are also discussed.  
+
+\end{abstract}
+
+
+\keywords{Fast Radio Bursts (FRBs) (12), Repeating FRB sources (3), Burst Rates (4)}
+
+\section{Introduction}
+\label{sec:intro}
+\indent Fast Radio Bursts (FRBs) have emerged as one of the most intriguing astrophysical phenomena in recent years. These events, characterized by millisecond transient signals at radio frequencies, have been detected since $2007$ \citep{lorimer2007bright}. However, the physical mechanism supporting their emission remains unknown though numerous models have been put forward.\\
+\indent Initially, FRBs were detected as isolated, non-repeating events. However, a significant breakthrough occurred in 2015 with the discovery of a repeating FRB source known as FRB$121102$A \citep{spitler2016repeating, scholz2016repeating}. This finding allowed for the localization of the radio source on the sky and subsequent comparison with optical data to identify the host galaxy of FRB121102. \citep{chatterjee2017direct, tendulkar2017host, andersen2019chime}.\\
+\indent The discovery of repeating FRBs has since held significant importance for several vital reasons within the realm of FRB research; the process producing the FRBs cannot be disruptive, eliminating supernova or similar events as the physical mechanism behind them. Furthermore, repeating sources differ from apparent one-off sources in their bandwidths and burst morphologies \citep{pleunis2021fast}. Furthermore, these repeating sources allow multi-wavelength investigations of their host galaxies and potentially related regions and the ability to detect additional radio bursts by knowing the 
+direction to point the telescope has been valuable. Finally, they enable radio follow-up to determine polarization properties and characterization of burst repetition and activity \citep{andersen2019chime}.\\
+\indent Several instances of repeating FRBs have exhibited minimal burst activity, occurring only a few times. However, certain FRBs have demonstrated prolific burst activity, with a high frequency of bursts recorded \citep{andersen2019chime}. One such intensely active repeating FRB source is FRB$20220912$A, discovered by the CHIME/FRB collaboration on \DTMdate{2022-09-12} \DTMtime{07:45:51} UTC at $400$ MHz \citep{mckinven2022nine}.\\ 
+\indent In this work, we characterize this source’s activity as a function of time and measure its Poisson burst rate. Throughout the project, several coding tools and libraries were utilized. The project relied on the use of libraries such as \texttt{numpy}, \texttt{astropy.io}, \texttt{pandas}, \texttt{matplotlib}, \texttt{photutils}, and \texttt{scipy.stats}. These libraries provided various functionalities for data manipulation, file input/output, visualization, statistical analysis, and optimization. The \texttt{numpy} library was used for numerical computations and array operations, while \texttt{astropy.io} facilitated the handling of files. The \texttt{datetime} module helped in working with date and time data, and \texttt{time} module provided functionalities for time-related operations. The \texttt{matplotlib} library was crucial for creating visualizations, including line plots, scatter plots, and bar graphs. Additionally, the \texttt{scipy.stats} module was used for statistical calculations, such as calculating confidence intervals. The \texttt{Counter} class from the \texttt{collections} module was employed to count occurrences and frequencies of events. Overall, these coding tools and libraries played a vital role in data analysis, visualization, and statistical analysis, contributing to the successful completion of the project.\\
+\indent Section \ref{sec:Observations_and_data} outlines the instruments and data used, while Section \ref{sec:Methods I} reviews the process of data reduction and the methods used to determine the Poisson burst rate by assuming a uniform exposure. Section \ref{sec:methods ii} repeats this process using the true exposure values provided by the CHIME/FRB collaboration. Section \ref{sec:Discussion} describes and analyzes the models developed throughout this experiment, discusses the results, and suggests future steps.\\
+
+\section{Observations and Data}
+\label{sec:Observations_and_data}
+The following information is provided by overview papers compiled by the CHIME/FRB Collaboration \citep{amiri2018chime, amiri2022overview}. Observations were taken with the CHIME (Canadian Hydrogen Intensity Mapping Experiment) telescope, which consists of four adjacent stationary cylinders. Each cylinder has a diameter of $20$ m, a length of $100$ m, and an axis orientation of north-south, functioning as a transit telescope. The telescope is equipped with $256$ dual-polarization antenna feeds per cylinder, operating in the frequency range of $400-800$ MHz. An on-site, FX-style correlator amplifies, digitizes, and processes the voltage signals from the antenna feeds before feeding them into the FRB detection device \citep{andersen2019chime}.\\
+\indent In each of the $1024$ produced sky beams, a real-time software pipeline is used to find transient signals with millisecond durations. \citep{andersen2019chime}.\\
+\indent The exposure of the CHIME/FRB system to source FRB$20220912$A is calculated as the duration of the daily transit of the source across the Full Width Half Maximum (FWHM) region of the synthesized beams at $600$ MHz \citep{andersen2019chime}. The FWHM refers to the angular size or width of the main lobe of the telescope's point spread function (PSF). The PSF represents the distribution of the flux of radiant energy per unit area that results from a single point source. The FWHM is the angular distance between the two points on either side of the PSF's peak where the intensity drops to half of the maximum value. It effectively measures the angular resolution of the telescope, indicating its ability to distinguish between closely spaced objects in the sky. A smaller FWHM corresponds to better angular resolution and the ability to resolve finer details in celestial objects. In relation to FRBs, there is a trade off as a large FWHM provides more chances of catching an FRB. In this sense both larger beams and finer angular resolution are desired, which is the purpose behind the CHIME outriggers currently in development. Sidelobes are the secondary peaks that appear around the main lobe of the PSF. They represent the response of the telescope to sources located at positions away from the main target. Sidelobes can arise due to various factors, including optical imperfections, diffraction effects, and instrument design. CHIME’s sidelobes are in the East-West direction, perpendicular to its cylinder axis \texttt{amiri2022overview}.\\
+\indent Data of the source transits and exposures are provided in the files \texttt{R11{\_}allevents{\_}20230420.npz}, and \texttt{exposure{\_}347.270{\_}48.707{\_}res{\_}4s{\_}src{\_}R117.npz} made by the CHIME/FRB collaboration.\\ 
+\indent The former contains the timestamp and event number of source events. This data is stored in a NumPy array format with two keys: 'timestamp' and 'event{\_}no'. The 'timestamp' key contains a list of $192$ timestamps representing the date and time when each event occurred. Each timestamp is in string format and includes the year, month, day, hour, minute, second, and microsecond. Select timestamps also include the UTC offset of \texttt{UTC+$0000$} to denote when peaks occur with slightly higher exposure for a few days at the beginning of each year. On these days the exposure is measured per UTC day rather than per sidereal day. The ``event{\_}no'' key contains a list of $192$ integers representing a unique identifier for each event.\\
+The latter contains data relating to the exposure and sensitivity measurements of the CHIME/FRB telescope. The data includes the following arrays: `datelist', `exp{\_}mins{\_}u,' `exp{\_}mins{\_}l,' `beams{\_}u,' `beams{\_}l,' `t{\_}stamps{\_}exp,' `psr{\_}rel{\_}sens{\_}u,' `e{\_}psr{\_}rel{\_}sens{\_}u,' `psr{\_}rel{\_}sens{\_}l,' `e{\_}psr{\_}rel{\_}sens{\_}l,' `num{\_}pulsars{\_}u,' and ``num{\_}pulsars{\_}l.' The ``datelist" array contains a series of timestamps ranging from August $28, 2018$, to March $14, 2023$, representing the dates for which exposure values are recorded.\\
+\indent The `exp{\_}mins{\_}u' and `exp{\_}mins{\_}l' arrays store the exposure durations in minutes for the upper and lower transit of the CHIME/FRB telescope. The ``beams{\_}u" and ``beams{\_}l" arrays consist of data representing the beams of the upper and lower transits. The upper transit occurs when the source crosses the meridian and reaches its highest point above the observer's horizon. At this moment, the object is said to be at its culmination and is positioned due south (in the northern hemisphere) or due north (in the southern hemisphere) from the observer. The lower transit refers to the moment when the celestial object crosses the meridian and reaches its lowest point below the observer's horizon. The object is positioned due north (in the northern hemisphere) or due south (in the southern hemisphere) from the observer during the lower transit.\\
+\indent The remaining seven arrays encode the sensitivity of the telescope by means of monitoring pulsar detections by CHIME/FRB.
+
+
+
+
+\section{Methods I: Temporal Distribution of Detections and Daily Burst Count Analysis}
+\label{sec:Methods I}
+\subsection{Detections as a Function of Time}
+\label{subsec:stellar}
+\indent The first step in data reduction was loading in the datasets and extracting the timestamps. These values were converted to strings and for easier handling. The script then defines a function, \texttt{plot{\_}cumulative{\_}detections}, that generates a plot of the cumulative events of FRB$20220912$A detected by CHIME over time. The function takes a list of detections as input. It then initializes an empty list called \texttt{cumulative{\_} counts} as an accumulator. It iterates over the timestamps and calculates the cumulative count of detections up to each timestamp, appending these counts to the \texttt{cumulative{\_}counts} list. The function is then called, passing the \texttt{time{\_}stamps} list as an argument to generate the desired cumulative detections plot displayed in Figure \ref{fig:cumulative}. \\
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{cumulative(4).png}
+    \caption{The figure illustrates the cumulative detections over time. The x-axis represents the dates, and the y-axis represents the cumulative number of detections. As a uniform exposure time is assumed, detections presented here may occur within either the FWHM or sidelobes of the beam. The period of decreased detections between \DTMdate{2022-12-22} and \DTMdate{2023-03-07} correspond to a period of low sensitivity of the telescope due to snow on the dishes.}
+    \label{fig:cumulative}
+\end{figure}
+
+\indent A second scatter plot representing a timeline of the FRB$20220912$A detections over time. To do so, the occurrences of detections per day are counted using the Counter function from the collections module and stores these counts in the \texttt{occurrences{\_}per{\_}day} variable. The sizes of the markers on the plot are determined based on the number of occurrences per day. The script then sets up the plot by creating a constant array for the y-axis, denoted CHIME/FRB and plots the number of occurrences per day. This is displayed in Figure \ref{fig:timeline}.\\
+
+
+\begin{figure*}[h]
+\ffigbox[\textwidth]{%
+  \includegraphics[width=\linewidth]{timeline(7).png}%
+}{%
+  \caption{The figure displays the CHIME/FRB (Canadian Hydrogen Intensity Mapping Experiment/Fast Radio Burst) detections over time. The x-axis represents the timestamps, and the y-axis represents the constant value for CHIME/FRB. The size of the markers on the plot indicates the number of occurrences per day. As a uniform exposure time is assumed, detections presented here may occur within either the FWHM or sidelobes of the beam. The period of decreased detections between \DTMdate{2022-12-22} and \DTMdate{2023-03-07} correspond to a period of low sensitivity of the telescope due to snow on the dishes.}%
+  \label{fig:timeline}%
+}
+\end{figure*}
+
+\subsection{Histogram of Detections per Day}
+\label{subsec:eos}
+
+\indent The next step involves creating a histogram to visualize the number of detections per day based on the first dataset. The script once again uses the Counter function to count the occurrences of each date and stores the results in the \texttt{date{\_}counts} variable. Next, it extracts the dates and their corresponding counts from the \texttt{date{\_}counts} object and assigns them to separate lists which are then plotted against each other as a histogram. This is shown in Figure \ref{fig:histogram}.\\
+
+
+
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=\textwidth]{histogram(4).png}
+    \caption{The figure showcases a histogram plot that represents the distribution of detections over different dates. Each bar in the histogram corresponds to a specific date, and the height of the bar indicates the number of detections recorded on that particular day. The x-axis denotes the dates, while the y-axis represents the count of detections. As a uniform exposure time is assumed, detections presented here may occur within either the FWHM or sidelobes of the beam. The period of decreased detections between \DTMdate{2022-12-22} and \DTMdate{2023-03-07} correspond to a period of low sensitivity of the telescope due to snow on the dishes.}
+    \label{fig:histogram}
+\end{figure*}
+
+\subsection{Preliminary Poisson Burst Rates}
+%% Update this section to define burst rates and waiting times. Mention appendix and link to poisson distribution and errors in appendix.
+%% update this to mention saved unique dates
+
+\indent Throughout this work, we assume a homogeneous Poisson process described by Eq. \ref{eq:Poisson}. This distribution is well recognized and makes few assumptions about our data. This counting process states that the number of events in a given interval follows a Poisson distribution with a mean that is proportional to the interval's size and that the number of events in two intervals is independent of one another.\\
+\indent Thus, a Poisson process has an exponential distribution of intervals $\delta$:
+
+\begin{equation}
+P(\delta,r)=re^{-\delta r} \label{eq:Poisson}
+\end{equation}
+
+for a burst rate, $r$, defined as the number of detections divided by the exposure time. In this section, we assume a uniform exposure time of $5.6$ minutes (good2023nondetection).\\
+\indent The script begins by defining a function called \texttt{calculate{\_}poisson{\_}burst{\_}rate} that assumes a daily exposure of $5.6$ minutes and uses the \texttt{Counter} function to count the occurrences of each event on each date. The function also calculates the lower and upper bounds of the confidence intervals for the burst rate using the \texttt{poisson.interval} function from \texttt{scipy.stats.poisson}. The function returns the daily rates, unique dates, and the lower bounds and upper bounds of the confidence intervals. After doing so, the script calculates the burst rate for the total duration by dividing the total number of detections by the product of $5.6$ and the number of days on which an event occurred. It then calculates the confidence interval for the total burst rate using the \texttt{poisson.interval} function. The daily burst rates vs time are plotted in Figure \ref{fig:Burst_Rates_over_Time}, with darker points corresponding to more burst rates at that particular value and date. Figure \ref{fig:Burst_Rates_over_Time_confidence} displays the daily burst rates and their confidence intervals. 
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=1\textwidth]{Burst_Rates_over_Time(4).png}
+    \caption{The figure illustrates the burst rates over time in bursts per minute using a uniform assumed exposure of $5.6$ minutes. The x-axis represents the date, while the y-axis represents the burst rate. The burst rate values are shown as a scatter plot, with the bursts per minute values marked by transparent red markers. Higher opacity markers denote more burst rates at that corresponding value and date. As a uniform exposure time is assumed, detections presented here may occur within either the FWHM or sidelobes of the beam. The period of decreased detections between \DTMdate{2022-12-22} and \DTMdate{2023-03-07} correspond to a period of low sensitivity of the telescope due to snow on the dishes.}
+    \label{fig:Burst_Rates_over_Time}
+\end{figure*}
+
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=1\textwidth]{Burst_Rates_with_Confidence_Intervals(1).png}
+    \caption{The figure illustrates the burst rates over time in bursts per minute using a uniform assumed exposure of $5.6$ minutes. The x-axis represents the date, while the y-axis represents the burst rate. The burst rate values are shown as a bar plot, with the bursts per minute values marked by blue vertical lines. Confidence intervals on the burst rates are denoted by black error bars. As a uniform exposure time is assumed, detections presented here may occur within either the FWHM or sidelobes of the beam. The period of decreased detections between \DTMdate{2022-12-22} and \DTMdate{2023-03-07} correspond to a period of low sensitivity of the telescope due to snow on the dishes.}
+    \label{fig:Burst_Rates_over_Time_confidence}
+\end{figure*}
+
+\section{METHODS II: EXPLORING BURST RATES: ANALYSIS OF EXPOSURE DEPENDENCY}
+\label{sec:methods ii}
+\subsection{Daily Exposure to the Source Position.} 
+\indent In this section, we load in the second file containing the daily exposure values. The script begins by extracting the FRB$20220912$A occurrence timestamps from the `datelist.npy’ key as well as the exposure values from the `exp{\_}min{\_}u.npy’ key. It then uses the NumPy function \texttt{np.column{\_}stack()} to combine the dates and exposures into a single array called \texttt{dates{\_exposure}} for easier manipulation later on. The script then splits this list into two separate lists: \texttt{dates{\_}split} and \texttt{exposure{\_}split} and generates a scatter plot of these values. This plot is displayed in Figure \ref{fig:Exposure_to_source_position}.  
+
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=1\textwidth]{Exposure_to_source_position(3).png}
+    \caption{The figure illustrates the exposure time of the CHIME/FRB (Canadian Hydrogen Intensity Mapping Experiment/Fast Radio Burst) to a specific source position over a period of time. The x-axis represents the dates, while the y-axis represents the exposure time in minutes. The data points indicate the exposure time for each corresponding date. The green dashed line represent the specific date of the detection of FRB$20220912$A. As the true exposure is defined as the duration the source spent within the FWHM of CHIME's beam, only detections occurring within the FWHM are displayed here. Furthermore, detections with 0 exposure time were removed, the implications of this are discussed in Section \ref{sec:Discussion}.}
+    \label{fig:Exposure_to_source_position}
+\end{figure*}
+
+
+ 
+\subsection{Revised Poisson Burst Rates}
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=1\textwidth]{Burst_Rates_over_Time_2(1).png}
+    \caption{The figure illustrates the burst rates over time in bursts per minute using the true daily exposure as provided by the CHIME/FRB collaboration. The x-axis represents the date, while the y-axis represents the burst rate. The burst rate values are shown as a scatter plot, with the bursts per minute values marked by transparent red markers. Higher opacity markers denote more burst rates at that corresponding value and date.  The period of decreased detections between \DTMdate{2022-12-22} and \DTMdate{2023-03-07} correspond to a period of low sensitivity of the telescope due to snow on the dishes. As the true exposure is defined as the duration the source spent within the FWHM of CHIME's beam, only detections occurring within the FWHM are displayed here. Furthermore, detections with 0 exposure time were removed, the implications of this are discussed in Section \ref{sec:Discussion}.}
+    \label{fig:Burst_rates_2_over_time}
+    \vspace{20pt}
+\end{figure*}
+
+
+
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=1\textwidth]{Burst_Rates_with_Confidence_Intervals_2(1).png}
+    \caption{The figure illustrates the burst rates over time in bursts per minute using the true daily exposure as provided by the CHIME/FRB collaboration. The x-axis represents the date, while the y-axis represents the burst rate. The burst rate values are shown as a bar plot, with the bursts per minute values marked by blue vertical lines. Confidence intervals on the burst rates are denoted by black error bars.  The period of decreased detections between \DTMdate{2022-12-22} and \DTMdate{2023-03-07} correspond to a period of low sensitivity of the telescope due to snow on the dishes. As the true exposure is defined as the duration the source spent within the FWHM of CHIME's beam, only detections occurring within the FWHM are displayed here. Furthermore, detections with 0 exposure time were removed, the implications of this are discussed in Section \ref{sec:Discussion}.}
+    \label{fig:Burst_rates_2_over_time_confidence}
+\end{figure*}
+
+%ADD Tables of BURST RATES!!!!
+\indent The Poisson burst rates are then recomputed using the true exposure values. To do so, the script first performs filtering operations on the \texttt{dates{\_}exposure} list to extract specific dates and their corresponding exposure times. It starts by creating a new list called \texttt{filtered{\_}dates{\_}exposure}, which is populated by iterating over each item in the \texttt{dates{\_}exposure} list. For each item, it checks if the date (item[0]) is present in the \texttt{time{\_}dates} list. If a match is found, the item is added to the \texttt{filtered{\_}dates{\_}exposure} list as a sublist. Next, a dictionary named \texttt{exposure{\_}dict} is created using a dictionary comprehension. It extracts the date and exposure time from each sublist in the \texttt{filtered{\_}dates{\_}exposure} list and stores them as key-value pairs in the dictionary. The date serves as the key, while the exposure time serves as the corresponding value. Finally, a new list named \texttt{updated{\_}time{\_}dates{\_}nonone} is created using another list comprehension. It iterates over each date in the \texttt{time{\_}dates} list and checks if the date exists as a key in the \texttt{exposure{\_}dict}. If it does, it retrieves the corresponding exposure time from the dictionary and creates a tuple with the date and exposure time. This tuple is then added to the \texttt{updated{\_}time{\_}dates{\_}nonone} list.\\
+The script then initializes several empty lists to store the burst rate, corresponding dates, and confidence interval results: \texttt{daily{\_}rates{\_}2}, \texttt{unique{\_}dates{\_}2}, \texttt{lower{\_}bounds{\_}2}, and \texttt{upper{\_}bounds{\_}2}.\\
+\indent Next, it counts the number of occurrences of each date in the dataset using the \texttt{Counter} function and assigns the result to \texttt{date{\_}counts}. Then, the script iterates over the unique dates in \texttt{date{\_}counts} and retrieves the count and exposure time for the current date, skipping dates with zero exposure time. It then calculates the burst rate per day by dividing the count by its corresponding exposure time. It appends the calculated burst rate to the \texttt{daily{\_}rates{\_}2} list and appends the unique date to the \texttt{unique{\_}dates{\_}2} list. Furthermore, the script calculates the confidence interval on the burst rate using the Poisson distribution and adjusts the bounds to be per minute. These confidence intervals are appended to their respective \texttt{lower{\_}bounds{\_}2} and \texttt{upper{\_}bounds{\_}2} lists. The dates without exposure time are stored in the \texttt{dates{\_}only{\_}2} list. After processing all dates, the script calculates the burst rate for the total duration by summing the counts of dates with non-zero exposure time and dividing it by the total exposure time. It also calculates the confidence interval on the total burst rate. The burst rates are visualized in Figure \ref{fig:Burst_rates_2_over_time} and Figure \ref{fig:Burst_rates_2_over_time_confidence}. 
+
+\section{Discussion}
+\label{sec:Discussion}
+%Mention future work!
+
+Overall, the characterization of the activity of active, repeating FRB source FRB$20220912$A had relative success. The confidence in our results are reasonable and there were few issues with our methods.\\
+\indent All figures display an abundance of detections throughout the period \DTMdate{2022-11-27} and \DTMdate{2022-12-22} followed by a sharp drop off in detections between \DTMdate{2022-12-22} and \DTMdate{2023-03-07}. This corresponds to a period of snowfall and low temperatures [$-15.4, -20.6$]$^{\circ}$C around December 21 in Penticton BC (https://www.extremeweatherwatch.com/cities/penticton/year-2022#december). This may have cause significant reduction in CHIME's sensitivity during this period. As a transit telescope, CHIME does not have the ability to turn to low elevation angles in order to shed snow. For this reason the CHIME reflector surface is formed with wire mesh, allowing most snowfall to pass through, however, these larger gaps in the mesh allow thermal radiation to leak through the focus, raising the system temperature (amiri2022overview). According to the 2022 CHIME system overview, accumulation of dry snow does not cause analog signal loss, however snowmelt produces the same signal deterioration as rain. Wet feeds are identified and flagged through the signals from the 2048 feeds. According to this review, roughly $4\%–12\%$ (interquartile range (IQR)) of the inputs are flagged for $3–21$ hr (IQR), effectively until they dry (amiri2022overview). However excluding data aquired during these wet periods results in a $20\%$ reduction in observing time. It is likely that the detection gaps during this period was caused by a period of snowfall followed by snowmelt on CHIME's dishes.\\
+\indent Interesting conclusions can be pulled from Figure \ref{fig:Exposure_to_source_position}. Peaks occur with slightly higher exposure for a few days at the beginning of each year, ex. \DTMdate{2019-01-02}, \DTMdate{2020-01-02}. On these days the exposure is measured per UTC day rather than per sidereal day, therefore the transit of the source falls at the start and end of one UTC day. Additionally, there is a very slow increase of exposure duration per day. This is due to Earth's precession with respect to the sky.\\
+\indent In order to investigate when the sources 'turned on' the plots were visually analyzed. Detections start on \DTMdate{2022-09-12} consistenly in all plots. Furthermore tt was found that periods of detection occurred in the first dataset that did not correspond to exposure values in the second dataset. This period ran consistenly from \DTMdate{2022-12-13} to \DTMdate{2022-12-22} We can infer that these source bursts were detected in the sidelobes of the beam.\\
+%%%CHECK THIS
+\indent Furthermore, periods of no burst detection but non-zero exposure time were also identified. In calculating the Poisson burst rate of these events and their corresponding confidence intervals, we would find an upper limit of $0$ bursts. The time gaps in these events was identified, and the longest gap in these events began on \DTMdate{2022-12-09} and ended on \DTMdate{2022-12-23}, with a duration of $14$ days. This timeframe constitutes a period of non-zero burst rates and furthermore corresponds with the first known detection date of the source, \DTMdate{2022-12-09}. We have thus determined when the source 'turned on'.\\
+\indent In future, we recommend the following adjustments. We would advise the dates corresponding to zero exposure time be included in a figure of the burst rates over time, furthermore, plots of the upper limit on days with zero burst detection but non-zero exposure should be made. These would provide a better visual of when the source 'turned on' and what is physically occurring when the exposures are non-zero with zero burst detection. Furthermore, CHIME/FRB's beam model should be accessed to determine when the source was inside the FWHM of any of the formed beams during each of its detections. Using this, the burst rates should be recomputed using only the detections within the beam. Doing so should result in a decreased number of bursts wile the exposure remains the same.\\
+\indent In this work we assume a Poisson process. As many repeating FRBs have been observed to repeat irregularly with clustering to some degree, Poisson statistics may not accurately describe this random process \citep{oppermann2018non}. In future work, the distribution of intervals between bursts should be modelled. To do so, a Weibull distribution could be used to generalize the distribution of burst intervals:
+
+\begin{equation}
+W(\delta |k, r) = k\delta^{-1}[\delta r \Gamma(1+1/k)]^{k}e^{-[\delta r \Gamma(1+1/k)]^{k}}
+\end{equation}
+
+In the Weibull distribution, there is an addition shape parameter k, which when set to 1 reduces to the Poisson distribution described in Eq. \ref{eq:Poisson}. Using this distribution may allow us to determine whether observations with bursts and those without bursts are consistent with Poisson statistics as well as allow us to quantify the clustering \cite{oppermann2018non}.\\
+\indent Finally, it should be noted that these results should not be taken at face value since the sensitivity of the telescope has not been taken into account. For example, Figure \ref{fig:Burst_rates_2_over_time_confidence} shows an apparent gap in the bursts, but since this period corresponds to a known period of decreased sensitivity of the telescope, this is expected. An understanding of the sensitivity of the telescope is required to make upper limits on the burst rate for days with zero burst detection. Doing so will eventually allow us to make confident statements on when we can rule out source activity. Similarly, it should be noted that from \DTMdate{2019-02-25} through {2019-03}, major updates were being made to the software pipline, resulting in large sensitivity variations \citep{andersen2019chime}. These sensitivity variations should be characterized in future work. 
+
+
+
+\newpage
+
+\bibliography{mybib}
+
+\clearpage
+\end{document}
+
